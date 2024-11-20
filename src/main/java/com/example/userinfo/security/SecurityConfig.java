@@ -21,8 +21,8 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtDecoder jwtDecoder) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/userInfo/findUserWallet").hasAuthority("svc::money_manager::route::/moneyManager/findUserWallet")
-                        .requestMatchers("/userInfo/modifyBalance/**").hasAuthority("svc::money_manager::route::/moneyManager/modifyBalance")
+                        .requestMatchers("/userInfo/addUserInfo").hasAuthority("svc::user_info::route::/userInfo/addUserInfo")
+                        .requestMatchers("/userInfo/findUserInfo").hasAuthority("svc::user_info::route::/userInfo/findUserInfo")
                 )
                 .csrf(AbstractHttpConfigurer::disable)
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> {
