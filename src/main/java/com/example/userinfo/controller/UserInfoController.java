@@ -1,5 +1,6 @@
 package com.example.userinfo.controller;
 
+import com.example.userinfo.dto.UserInfoDTO;
 import com.example.userinfo.entity.UserInfo;
 import com.example.userinfo.service.KeyLoaderService;
 import com.example.userinfo.service.UserInfoService;
@@ -30,26 +31,24 @@ public class UserInfoController {
 
     private UserInfoService userInfoService;
 
-    @GetMapping("/")
-    public String userInfo() {
-        return "AAAAAAA";
-    }
-
     @GetMapping("/userInfo/addUserInfo")
-    public ResponseEntity<?> addUserInfo(@RequestHeader(HttpHeaders.AUTHORIZATION) String userToken, @RequestBody UserInfo userInfo) {
+    public ResponseEntity<?> addUserInfo(@RequestHeader(HttpHeaders.AUTHORIZATION) String userToken, @RequestBody UserInfoDTO userInfo) {
         String userId = getUserIdFromToken(userToken);
         Map<String, String> response = new HashMap<>();
         if(userInfoService.getUserInfoByEmail(userInfo.getEmail()) != null || userInfoService.getUserInfoByUsername(userInfo.getUsername()) != null){
             response.put("message", "Username or email already exists");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
-        if(userInfoService.getUserInfoByUsername(userInfo.getUsername()) != null) {
-            response.put("message", "User already exists");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-        }
-        userInfoService.saveUserInfo(userInfo);
-        //return ResponseEntity.ok(userInfo);
-        return ResponseEntity.status(HttpStatus.ACCEPTED).build();
+
+        UserInfo newUser = new UserInfo();
+        newUser.setId(userId);
+        newUser.setUsername(userInfo.getUsername());
+        newUser.setName(userInfo.getName());
+        newUser.setSurname(userInfo.getSurname());
+        newUser.setEmail(userInfo.getEmail());
+
+        userInfoService.saveUserInfo(newUser);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @GetMapping("/userInfo/findUserInfo")

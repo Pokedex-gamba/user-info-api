@@ -1,17 +1,7 @@
-package com.example.userinfo.entity;
+package com.example.userinfo.dto;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+public class UserInfoDTO {
 
-import java.util.UUID;
-
-@Entity
-@Table(name = "user_info")
-public class UserInfo {
-
-    @Id
-    private String id;
 
     private String username;
 
@@ -21,23 +11,7 @@ public class UserInfo {
 
     private String email;
 
-    public UserInfo(String id, String username, String surname, String name, String email) {
-        this.id = id;
-        this.username = username;
-        this.surname = surname;
-        this.name = name;
-        this.email = email;
-    }
-
-    public UserInfo() {
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
+    public UserInfoDTO() {
     }
 
     public String getUsername() {
