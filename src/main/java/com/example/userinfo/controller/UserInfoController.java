@@ -6,7 +6,10 @@ import com.example.userinfo.service.KeyLoaderService;
 import com.example.userinfo.service.UserInfoService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import jakarta.servlet.http.HttpServletRequest;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -31,7 +34,7 @@ public class UserInfoController {
 
     private UserInfoService userInfoService;
 
-    @GetMapping("/userInfo/addUserInfo")
+    @GetMapping("/addUserInfo")
     public ResponseEntity<?> addUserInfo(@RequestHeader(HttpHeaders.AUTHORIZATION) String userToken, @RequestBody UserInfoDTO userInfo) {
         String userId = getUserIdFromToken(userToken);
         Map<String, String> response = new HashMap<>();
@@ -51,7 +54,14 @@ public class UserInfoController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-    @GetMapping("/userInfo/findUserInfo")
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = UserInfo.class)))
+            }
+    )
+    @GetMapping("/findUserInfo")
     public ResponseEntity<?> findUserInfo(@RequestHeader(HttpHeaders.AUTHORIZATION) String userToken) {
         String userId = getUserIdFromToken(userToken);
         UserInfo userInfo = userInfoService.getUserInfo(userId);
