@@ -34,6 +34,11 @@ public class UserInfoController {
 
     private UserInfoService userInfoService;
 
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200")
+            }
+    )
     @GetMapping("/addUserInfo")
     public ResponseEntity<?> addUserInfo(@RequestHeader(HttpHeaders.AUTHORIZATION) String userToken, @RequestBody UserInfoDTO userInfo) {
         String userId = getUserIdFromToken(userToken);
