@@ -36,7 +36,10 @@ public class UserInfoController {
 
     @ApiResponses(
             value = {
-                    @ApiResponse(responseCode = "200")
+                    @ApiResponse(responseCode = "200"),
+                    @ApiResponse(responseCode = "400",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(example = "{\"message\" : \"Username or email already exists\"}")))
             }
     )
     @GetMapping("/addUserInfo")
@@ -63,7 +66,10 @@ public class UserInfoController {
             value = {
                     @ApiResponse(responseCode = "200",
                             content = @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = UserInfo.class)))
+                                    schema = @Schema(implementation = UserInfo.class))),
+                    @ApiResponse(responseCode = "404",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(example = "{\"message\" : \"User does not exist\"}")))
             }
     )
     @GetMapping("/findUserInfo")
