@@ -5,6 +5,8 @@ import com.example.userinfo.repository.UserInfoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class UserInfoService {
 
@@ -15,7 +17,8 @@ public class UserInfoService {
     }
 
     public UserInfo getUserInfo(String id) {
-        return userInfoRepository.findById(id).get();
+        Optional<UserInfo> userInfo = userInfoRepository.findById(id);
+        return userInfo.orElse(null);
     }
 
     public UserInfo getUserInfoByEmail(String email) {
