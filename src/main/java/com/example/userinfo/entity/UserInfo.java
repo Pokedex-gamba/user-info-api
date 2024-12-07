@@ -1,5 +1,6 @@
 package com.example.userinfo.entity;
 
+import com.example.userinfo.dto.UserInfoDTO;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -19,14 +20,19 @@ public class UserInfo {
 
     private String surname;
 
-    private String email;
 
     public UserInfo(String id, String username, String surname, String name, String email) {
         this.id = id;
         this.username = username;
         this.surname = surname;
         this.name = name;
-        this.email = email;
+    }
+
+    public UserInfo(UserInfoDTO userInfoDTO, String id) {
+        this.id = id;
+        this.username = userInfoDTO.getUsername();
+        this.surname = userInfoDTO.getSurname();
+        this.name = userInfoDTO.getName();
     }
 
     public UserInfo() {
@@ -62,13 +68,5 @@ public class UserInfo {
 
     public void setSurname(String surname) {
         this.surname = surname;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
     }
 }

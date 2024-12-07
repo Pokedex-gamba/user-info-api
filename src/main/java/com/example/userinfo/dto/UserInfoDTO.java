@@ -9,7 +9,6 @@ public class UserInfoDTO {
 
     private String surname;
 
-    private String email;
 
     public UserInfoDTO() {
     }
@@ -36,13 +35,5 @@ public class UserInfoDTO {
 
     public void setSurname(String surname) {
         this.surname = surname;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
     }
 }

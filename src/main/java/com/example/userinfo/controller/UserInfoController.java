@@ -14,16 +14,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.security.PublicKey;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -39,15 +37,15 @@ public class UserInfoController {
                     @ApiResponse(responseCode = "200"),
                     @ApiResponse(responseCode = "400",
                             content = @Content(mediaType = "application/json",
-                                    schema = @Schema(example = "{\"message\" : \"Username or email already exists\"}")))
+                                    schema = @Schema(example = "{\"message\" : \"Username already exists\"}")))
             }
     )
-    @GetMapping("/addUserInfo")
+    @PostMapping("/addUserInfo")
     public ResponseEntity<?> addUserInfo(@RequestHeader(HttpHeaders.AUTHORIZATION) String userToken, @RequestBody UserInfoDTO userInfo) {
         String userId = getUserIdFromToken(userToken);
         Map<String, String> response = new HashMap<>();
-        if(userInfoService.getUserInfoByEmail(userInfo.getEmail()) != null || userInfoService.getUserInfoByUsername(userInfo.getUsername()) != null){
-            response.put("message", "Username or email already exists");
+        if(userInfoService.getUserInfoByUsername(userInfo.getUsername()) != null) {
+            response.put("message", "Username already exists");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
 
@@ -56,7 +54,6 @@ public class UserInfoController {
         newUser.setUsername(userInfo.getUsername());
         newUser.setName(userInfo.getName());
         newUser.setSurname(userInfo.getSurname());
-        newUser.setEmail(userInfo.getEmail());
 
         userInfoService.saveUserInfo(newUser);
         return ResponseEntity.status(HttpStatus.OK).build();
@@ -83,6 +80,78 @@ public class UserInfoController {
         } else {
             return ResponseEntity.ok(userInfo);
         }
+    }
+
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = UserInfo.class))),
+                    @ApiResponse(responseCode = "404",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(example = "{\"message\" : \"No user info found\"}")))
+            }
+    )
+    @GetMapping("/findAllUserInfo")
+    public ResponseEntity<?> findAllUserInfo() {
+        List<UserInfo> allUserInfo = userInfoService.getAllUserInfo();
+        if (allUserInfo == null) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "No user info found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+        return ResponseEntity.ok(allUserInfo);
+    }
+
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = UserInfo.class))),
+                    @ApiResponse(responseCode = "404",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(example = "{\"message\" : \"No user info found\"}")))
+            }
+    )
+    @PostMapping("/findUserInfoByUsername")
+    public ResponseEntity<?> findUserInfoByUsername(@RequestBody UserInfoDTO userInfo) {
+        UserInfo foundUserInfo = userInfoService.getUserInfoByUsername(userInfo.getUsername());
+        if (foundUserInfo == null) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "No user info found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+        return ResponseEntity.ok(foundUserInfo);
+    }
+
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = UserInfo.class))),
+                    @ApiResponse(responseCode = "400",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(example = "{\"message\" : \"Username already exists\"}"))),
+                    @ApiResponse(responseCode = "404",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(example = "{\"message\" : \"User does not exist\"}")))
+            }
+    )
+    @PutMapping("/editUserInfo")
+    public  ResponseEntity<?> editUserInfo(@RequestHeader(HttpHeaders.AUTHORIZATION) String userToken, @RequestBody UserInfoDTO userInfoDTO) {
+        String userId = getUserIdFromToken(userToken);
+        Map<String, String> response = new HashMap<>();
+        UserInfo userInfo = new UserInfo(userInfoDTO, userId);
+        if(userInfoService.getUserInfoByUsername(userInfo.getUsername()) != null){
+            response.put("message", "Username already exists");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+        UserInfo updatedInfo = userInfoService.updateUserInfo(userInfo);
+        if(updatedInfo == null) {
+            response.put("message", "User does not exist");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+        return ResponseEntity.ok(updatedInfo);
     }
 
     private String getUserIdFromToken(String authHeader) {

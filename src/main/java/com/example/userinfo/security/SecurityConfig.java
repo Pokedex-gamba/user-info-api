@@ -23,6 +23,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/addUserInfo").hasAuthority("svc::user_info::route::/addUserInfo")
                         .requestMatchers("/findUserInfo").hasAuthority("svc::user_info::route::/findUserInfo")
+                        .requestMatchers("/editUserInfo").hasAuthority("svc::user_info::route::/editUserInfo")
+                        .requestMatchers("/findAllUserInfo").hasAuthority("svc::user_info::route::/findAllUserInfo")
+                        .requestMatchers("/findUserInfoByUsername").hasAuthority("svc::user_info::route::/findUserInfoByUsername")
                         .requestMatchers("/docs","/v3/api-docs").permitAll()
                 )
                 .csrf(AbstractHttpConfigurer::disable)

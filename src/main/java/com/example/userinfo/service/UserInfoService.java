@@ -5,6 +5,7 @@ import com.example.userinfo.repository.UserInfoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -21,12 +22,20 @@ public class UserInfoService {
         return userInfo.orElse(null);
     }
 
-    public UserInfo getUserInfoByEmail(String email) {
-        return userInfoRepository.findByEmail(email);
-    }
-
     public UserInfo getUserInfoByUsername(String username) {
         return userInfoRepository.findByUsername(username);
+    }
+
+    public UserInfo updateUserInfo(UserInfo userInfo) {
+        if(userInfoRepository.findById(userInfo.getId()).isPresent()) {
+            return userInfoRepository.save(userInfo);
+        } else {
+            return null;
+        }
+    }
+
+    public List<UserInfo> getAllUserInfo() {
+        return userInfoRepository.findAll();
     }
 
     @Autowired
