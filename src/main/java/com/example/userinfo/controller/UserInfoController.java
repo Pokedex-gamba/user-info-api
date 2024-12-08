@@ -23,6 +23,7 @@ import java.security.PublicKey;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RestController
@@ -37,7 +38,10 @@ public class UserInfoController {
                     @ApiResponse(responseCode = "200"),
                     @ApiResponse(responseCode = "400",
                             content = @Content(mediaType = "application/json",
-                                    schema = @Schema(example = "{\"message\" : \"Username already exists\"}")))
+                                    schema = @Schema(example = "{\"message\" : \"Username already exists\"}"))),
+                    @ApiResponse(responseCode = "400",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(example = "{\"message\" : \"Username can't be empty\"}")))
             }
     )
     @PostMapping("/addUserInfo")
@@ -48,13 +52,15 @@ public class UserInfoController {
             response.put("message", "Username already exists");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
-
         UserInfo newUser = new UserInfo();
         newUser.setId(userId);
         newUser.setUsername(userInfo.getUsername());
         newUser.setName(userInfo.getName());
         newUser.setSurname(userInfo.getSurname());
-
+        if(!validateInput(newUser.getUsername())) {
+            response.put("message", "Username can't be empty");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
         userInfoService.saveUserInfo(newUser);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
@@ -131,6 +137,9 @@ public class UserInfoController {
                                     schema = @Schema(implementation = UserInfo.class))),
                     @ApiResponse(responseCode = "400",
                             content = @Content(mediaType = "application/json",
+                                    schema = @Schema(example = "{\"message\" : \"Inputs can't be empty\"}"))),
+                    @ApiResponse(responseCode = "400",
+                            content = @Content(mediaType = "application/json",
                                     schema = @Schema(example = "{\"message\" : \"Username already exists\"}"))),
                     @ApiResponse(responseCode = "404",
                             content = @Content(mediaType = "application/json",
@@ -142,7 +151,12 @@ public class UserInfoController {
         String userId = getUserIdFromToken(userToken);
         Map<String, String> response = new HashMap<>();
         UserInfo userInfo = new UserInfo(userInfoDTO, userId);
-        if(userInfoService.getUserInfoByUsername(userInfo.getUsername()) != null){
+        if(!validateInput(userInfo.getUsername()) || !validateInput(userInfo.getName()) || !validateInput(userInfo.getSurname())) {
+            response.put("message", "Inputs can't be empty");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+        UserInfo sameUsernameInfo = userInfoService.getUserInfoByUsername(userInfo.getUsername());
+        if(sameUsernameInfo.getUsername() != null && !Objects.equals(sameUsernameInfo.getId(), userInfo.getId())) {
             response.put("message", "Username already exists");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
@@ -180,6 +194,10 @@ public class UserInfoController {
         }
 
         return userId;
+    }
+
+    private boolean validateInput(String string){
+        return !string.isBlank() && !string.isEmpty();
     }
 
     @Autowired
