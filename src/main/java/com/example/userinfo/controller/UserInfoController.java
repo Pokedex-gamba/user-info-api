@@ -137,7 +137,7 @@ public class UserInfoController {
                                     schema = @Schema(implementation = UserInfo.class))),
                     @ApiResponse(responseCode = "400",
                             content = @Content(mediaType = "application/json",
-                                    schema = @Schema(example = "{\"message\" : \"Inputs can't be empty\"}"))),
+                                    schema = @Schema(example = "{\"message\" : \"Username can't be empty\"}"))),
                     @ApiResponse(responseCode = "400",
                             content = @Content(mediaType = "application/json",
                                     schema = @Schema(example = "{\"message\" : \"Username already exists\"}"))),
@@ -151,8 +151,8 @@ public class UserInfoController {
         String userId = getUserIdFromToken(userToken);
         Map<String, String> response = new HashMap<>();
         UserInfo userInfo = new UserInfo(userInfoDTO, userId);
-        if(!validateInput(userInfo.getUsername()) || !validateInput(userInfo.getName()) || !validateInput(userInfo.getSurname())) {
-            response.put("message", "Inputs can't be empty");
+        if(!validateInput(userInfo.getUsername())) {
+            response.put("message", "Username can't be empty");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
         UserInfo sameUsernameInfo = userInfoService.getUserInfoByUsername(userInfo.getUsername());
